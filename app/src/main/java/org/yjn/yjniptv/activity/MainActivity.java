@@ -1,4 +1,4 @@
-package org.yjn.yjniptv;
+package org.yjn.yjniptv.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -11,14 +11,20 @@ import com.shuyu.gsyvideoplayer.model.VideoOptionModel;
 import com.shuyu.gsyvideoplayer.utils.OrientationUtils;
 import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer;
 
+import org.yjn.yjniptv.R;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 
 public class MainActivity extends AppCompatActivity {
 
-    public StandardGSYVideoPlayer videoPlayer;
+    @BindView(R.id.videoPlayer)
+    StandardGSYVideoPlayer videoPlayer;
+
+
     OrientationUtils orientationUtils;
 
     @Override
@@ -29,7 +35,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void init() {
-        videoPlayer =  (StandardGSYVideoPlayer)findViewById(R.id.videoPlayer);
+        initVideoPlayer();
+    }
+
+    private void initVideoPlayer() {
         /**此中内容：优化加载速度，降低延迟*/
         VideoOptionModel videoOptionModel = new VideoOptionModel(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "rtsp_transport", "tcp");
         List<VideoOptionModel> list = new ArrayList<>();
