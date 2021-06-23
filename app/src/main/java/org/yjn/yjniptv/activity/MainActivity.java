@@ -1,28 +1,39 @@
 package org.yjn.yjniptv.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.LinearLayout;
 
+import com.owen.tvrecyclerview.widget.TvRecyclerView;
 import com.shuyu.gsyvideoplayer.GSYVideoManager;
 import com.shuyu.gsyvideoplayer.model.VideoOptionModel;
 import com.shuyu.gsyvideoplayer.utils.OrientationUtils;
 import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer;
 
+import org.yjn.common.Utils.L;
+import org.yjn.common.Utils.T;
 import org.yjn.yjniptv.R;
+import org.yjn.yjniptv.adapter.ProgramAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
+import butterknife.ButterKnife;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
+
+import static org.yjn.yjniptv.data.ProgramList.programHashMap;
 
 public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.videoPlayer)
     StandardGSYVideoPlayer videoPlayer;
+    @BindView(R.id.rv_program)
+    TvRecyclerView recyclerView;
 
 
     OrientationUtils orientationUtils;
@@ -31,17 +42,35 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
         init();
     }
 
     private void init() {
+        initView();
         initVideoPlayer();
+    }
+
+    private void initView() {
+        ProgramAdapter programAdapter = new ProgramAdapter();
+        recyclerView.setAdapter(programAdapter);
+        programAdapter.programListOnclick(new ProgramAdapter.IListSwitchChannel() {
+            @Override
+            public void onClick(View view, int position) {
+                L.i(String.valueOf(programHashMap.get(position).getUrl()));
+                switchChannel(position);
+            }
+        });
+
+
     }
 
     private void initVideoPlayer() {
         /**此中内容：优化加载速度，降低延迟*/
-        VideoOptionModel videoOptionModel = new VideoOptionModel(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "rtsp_transport", "tcp");
         List<VideoOptionModel> list = new ArrayList<>();
+        VideoOptionModel videoOptionModel;
+
+        videoOptionModel = new VideoOptionModel(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "rtsp_transport", "tcp");
         list.add(videoOptionModel);
         videoOptionModel = new VideoOptionModel(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "rtsp_flags", "prefer_tcp");
         list.add(videoOptionModel);
@@ -77,9 +106,13 @@ public class MainActivity extends AppCompatActivity {
         videoOptionModel = new VideoOptionModel(IjkMediaPlayer.OPT_CATEGORY_CODEC, "skip_loop_filter", 8);
         list.add(videoOptionModel);
         GSYVideoManager.instance().setOptionModelList(list);
+        switchChannel(1);
+    }
 
-        String source1 = "rtmp://58.200.131.2:1935/livetv/cctv1";
-        videoPlayer.setUp(source1, true, "");
+    private void switchChannel(int num){
+        String url = String.valueOf(programHashMap.get(num).getUrl());
+        String title = String.valueOf(programHashMap.get(num).getTitle());
+        videoPlayer.setUp(url, true, title);
         videoPlayer.getTitleTextView().setVisibility(View.GONE);
         videoPlayer.getBackButton().setVisibility(View.GONE);
         videoPlayer.startPlayLogic();

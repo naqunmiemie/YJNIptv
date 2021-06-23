@@ -6,16 +6,19 @@
     android:layout_height="match_parent"
     tools:context=".activity.MainActivity">
 
-    <com.owen.tvrecyclerview.widget.TvRecyclerView
-        android:id="@+id/tv_program"
-        android:layout_width="300dp"
-        android:layout_height="match_parent"
-        android:background="#33000000"/>
-
     <com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
         android:id="@+id/videoPlayer"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
     </com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer>
+
+    <com.owen.tvrecyclerview.widget.TvRecyclerView
+        android:id="@+id/rv_program"
+        android:layout_width="300dp"
+        android:layout_height="match_parent"
+        android:background="#33000000"
+        android:orientation="vertical"
+        app:tv_layoutManager="ListLayoutManager"
+        app:tv_loadMoreBeforehandCount = "11"/>
 
 </FrameLayout>
