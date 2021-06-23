@@ -6,23 +6,28 @@ import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.View;
 
+import com.owen.tvrecyclerview.widget.TvRecyclerView;
 import com.shuyu.gsyvideoplayer.GSYVideoManager;
 import com.shuyu.gsyvideoplayer.model.VideoOptionModel;
 import com.shuyu.gsyvideoplayer.utils.OrientationUtils;
 import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer;
 
 import org.yjn.yjniptv.R;
+import org.yjn.yjniptv.adapter.ProgramAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
+import butterknife.ButterKnife;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 
 public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.videoPlayer)
     StandardGSYVideoPlayer videoPlayer;
+    @BindView(R.id.rv_program)
+    TvRecyclerView recyclerView;
 
 
     OrientationUtils orientationUtils;
@@ -31,11 +36,18 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
         init();
     }
 
     private void init() {
+        initView();
         initVideoPlayer();
+    }
+
+    private void initView() {
+        recyclerView.setAdapter(new ProgramAdapter());
+
     }
 
     private void initVideoPlayer() {

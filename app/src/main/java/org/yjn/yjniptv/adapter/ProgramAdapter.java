@@ -1,15 +1,27 @@
 package org.yjn.yjniptv.adapter;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
+import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.ListAdapter;
+import androidx.recyclerview.widget.RecyclerView;
+
+import org.yjn.yjniptv.R;
 import org.yjn.yjniptv.bean.Program;
 
 import java.util.HashMap;
 
-public class ProgramAdapter extends BaseAdapter {
+
+public class ProgramAdapter extends RecyclerView.Adapter<ProgramAdapter.ListViewHolder> {
+    private Context mContext;
+
     private HashMap<Integer, Program> programHashMap = new HashMap<Integer, Program>(){{
+        put(0,new Program("湖北卫视高清","http://ivi.bupt.edu.cn/hls/hbhd.m3u8"));
         put(1,new Program("CCTV-1综合","rtmp://58.200.131.2:1935/livetv/cctv1"));
         put(2,new Program("CCTV-2财经","rtmp://58.200.131.2:1935/livetv/cctv2"));
         put(3,new Program("CCTV-3综艺","rtmp://58.200.131.2:1935/livetv/cctv3"));
@@ -28,23 +40,37 @@ public class ProgramAdapter extends BaseAdapter {
     }};
 
 
+    @NonNull
     @Override
-    public int getCount() {
-        return 0;
+    public ListViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_program_list,null,false);
+        final  ListViewHolder holder = new ListViewHolder(view);
+        mContext = parent.getContext();
+        return holder;
     }
 
     @Override
-    public Object getItem(int position) {
-        return null;
+    public void onBindViewHolder(@NonNull ListViewHolder holder, int position) {
+        holder.tvProgramNum.setText(String.valueOf(position));
+        holder.tvProgramTitle.setText(programHashMap.get(position).getTitle());
     }
 
     @Override
-    public long getItemId(int position) {
-        return 0;
+    public int getItemCount() {
+        return programHashMap.size();
     }
 
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        return null;
+    static class ListViewHolder extends RecyclerView.ViewHolder{
+
+        View view;
+        TextView tvProgramTitle;
+        TextView tvProgramNum;
+        public ListViewHolder(@NonNull View itemView) {
+            super(itemView);
+            view = itemView;
+            tvProgramTitle = view.findViewById(R.id.tv_program_title);
+            tvProgramNum = view.findViewById(R.id.tv_program_num);
+
+        }
     }
 }
