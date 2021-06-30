@@ -1,6 +1,5 @@
 package org.yjn.yjniptv.adapter;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,9 +12,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import org.yjn.common.Utils.L;
 import org.yjn.yjniptv.R;
-import org.yjn.yjniptv.bean.Program;
-
-import java.util.HashMap;
 
 import static org.yjn.yjniptv.data.ProgramList.programHashMap;
 
