@@ -73,5 +73,7 @@ public class ProgramAdapter extends RecyclerView.Adapter<ProgramAdapter.ListView
             tvProgramNum = view.findViewById(R.id.tv_program_num);
 
         }
+
+
     }
 }
