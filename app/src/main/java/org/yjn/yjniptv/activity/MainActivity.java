@@ -2,14 +2,10 @@ package org.yjn.yjniptv.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
-import androidx.recyclerview.widget.RecyclerView;
 
-import android.animation.ValueAnimator;
 import android.os.Bundle;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.animation.Interpolator;
-import android.view.animation.OvershootInterpolator;
+import android.view.animation.AccelerateDecelerateInterpolator;
 
 import com.owen.tvrecyclerview.widget.TvRecyclerView;
 import com.shuyu.gsyvideoplayer.GSYVideoManager;
@@ -97,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
     private void hideProgramList(){
         ViewCompat.animate(recyclerView)
                 .translationXBy(PROGRAM_RECYCLERVIEW_WIDTH)
-                .setInterpolator(new OvershootInterpolator());
+                .setInterpolator(new AccelerateDecelerateInterpolator());
     }
 
 
