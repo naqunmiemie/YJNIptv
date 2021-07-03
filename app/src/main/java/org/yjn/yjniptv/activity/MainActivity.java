@@ -1,9 +1,15 @@
 package org.yjn.yjniptv.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.ViewCompat;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.animation.ValueAnimator;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.Interpolator;
+import android.view.animation.OvershootInterpolator;
 
 import com.owen.tvrecyclerview.widget.TvRecyclerView;
 import com.shuyu.gsyvideoplayer.GSYVideoManager;
@@ -28,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
 
     private GSYVideoOptionBuilder gsyVideoOptionBuilder;
     private boolean cache = false;
+    private int PROGRAM_RECYCLERVIEW_WIDTH = (int) getResources().getDimension(R.dimen.program_recyclerview_width);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +92,12 @@ public class MainActivity extends AppCompatActivity {
                 videoPlayer.startPlayLogic();
             }
         }, 1000);
+    }
+
+    private void hideProgramList(){
+        ViewCompat.animate(recyclerView)
+                .translationXBy(PROGRAM_RECYCLERVIEW_WIDTH)
+                .setInterpolator(new OvershootInterpolator());
     }
 
 
