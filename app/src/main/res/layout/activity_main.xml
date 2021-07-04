@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.MainActivity">
+    tools:context="com.yjn.yjniptv.activity.MainActivity">
 
     <com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
         android:id="@+id/videoPlayer"
@@ -22,7 +22,7 @@
         android:orientation="vertical"
         app:tv_layoutManager="ListLayoutManager"
         app:tv_loadMoreBeforehandCount = "11"
-        app:layout_constraintEnd_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
