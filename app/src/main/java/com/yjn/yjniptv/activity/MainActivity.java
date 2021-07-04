@@ -5,6 +5,7 @@ import androidx.core.view.ViewCompat;
 
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -23,6 +24,11 @@ import com.yjn.yjniptv.R;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static android.view.KeyEvent.KEYCODE_DPAD_CENTER;
+import static android.view.KeyEvent.KEYCODE_DPAD_DOWN;
+import static android.view.KeyEvent.KEYCODE_DPAD_LEFT;
+import static android.view.KeyEvent.KEYCODE_DPAD_UP;
+
 public class MainActivity extends AppCompatActivity{
 
     @BindView(R.id.videoPlayer)
@@ -40,6 +46,11 @@ public class MainActivity extends AppCompatActivity{
     private int lastChannel;
     private long firstTime = 0;
     private long secondTime = 0;
+    float x1 = 0;
+    float x2 = 0;
+    float y1 = 0;
+    float y2 = 0;
+    int move=100;//移动距离
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,6 +105,11 @@ public class MainActivity extends AppCompatActivity{
     }
 
     private void switchChannel(int num) {
+        if (num >= ProgramList.programHashMap.size()){
+            num = 0;
+        }else if (num < 0){
+            num = ProgramList.programHashMap.size()-1;
+        }
         lastChannel = currentChannel;
         currentChannel = num;
         String url = String.valueOf(ProgramList.programHashMap.get(num).getUrl());
@@ -165,9 +181,7 @@ public class MainActivity extends AppCompatActivity{
             firstTime = System.currentTimeMillis();
             return;
         }
-
         L.d("退出");
-
         //释放所有
         videoPlayer.setVideoAllCallBack(null);
         super.onBackPressed();
@@ -181,11 +195,66 @@ public class MainActivity extends AppCompatActivity{
                 return true;
             }
         }else {
-            if (ev.getX()<(mWidth/2)){
+            if(ev.getAction() == MotionEvent.ACTION_DOWN) {//当手指按下的时候
+                x1 = ev.getX();
+                y1 = ev.getY();
+            }
+            if (ev.getAction() == MotionEvent.ACTION_MOVE){
+                //屏蔽触摸事件
+                return true;
+            }
+            if(ev.getAction() == MotionEvent.ACTION_UP) {//当手指离开的时候
+                x2 = ev.getX();
+                y2 = ev.getY();
+                if (y1 - y2 > move && (y1 - y2) > (x1 - x2) && (y1 - y2) > (x2 - x1)) {
+                    L.i("向上滑");
+                    switchChannel(currentChannel+1);
+                    return true;
+                } else if (y2 - y1 > move && (y2 - y1) > (x1 - x2) && (y2 - y1) > (x2 - x1)) {
+                    L.i("向下滑");
+                    switchChannel(currentChannel-1);
+                    return true;
+                } else if (x1 - x2 > move) {
+                    L.i("向左滑");
+                    switchChannel(lastChannel);
+                    return true;
+                } else if (x2 - x1 > move) {
+                    L.i("向右滑");
+                    if (!isShowProgramList){
+                        showProgramList();
+                    }
+                    return true;
+                }
+            }
+
+            if (ev.getAction() == MotionEvent.ACTION_UP && ev.getX()<(mWidth/2)){
                 showProgramList();
                 return true;
             }
         }
         return super.dispatchTouchEvent(ev);
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        switch (event.getKeyCode()){
+            case KEYCODE_DPAD_CENTER:
+                if (isShowProgramList){
+                    hideProgramList();
+                }else {
+                    showProgramList();
+                }
+                return true;
+            case KEYCODE_DPAD_LEFT:
+                switchChannel(lastChannel);
+                return true;
+            case KEYCODE_DPAD_UP:
+                switchChannel(currentChannel+1);
+                return true;
+            case KEYCODE_DPAD_DOWN:
+                switchChannel(currentChannel-1);
+                return true;
+        }
+        return super.dispatchKeyEvent(event);
     }
 }
