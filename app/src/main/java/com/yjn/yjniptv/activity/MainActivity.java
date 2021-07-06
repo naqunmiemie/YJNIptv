@@ -14,13 +14,13 @@ import android.view.animation.DecelerateInterpolator;
 import com.owen.tvrecyclerview.widget.TvRecyclerView;
 import com.shuyu.gsyvideoplayer.GSYVideoManager;
 import com.shuyu.gsyvideoplayer.builder.GSYVideoOptionBuilder;
-import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer;
 import com.yjn.common.Utils.L;
 import com.yjn.common.Utils.T;
 import com.yjn.yjniptv.adapter.ProgramAdapter;
 import com.yjn.yjniptv.data.ProgramList;
 
 import com.yjn.yjniptv.R;
+import com.yjn.yjniptv.widget.EmptyControlVideo;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -33,7 +33,7 @@ import static android.view.KeyEvent.KEYCODE_DPAD_UP;
 public class MainActivity extends AppCompatActivity{
 
     @BindView(R.id.videoPlayer)
-    StandardGSYVideoPlayer videoPlayer;
+    EmptyControlVideo videoPlayer;
     @BindView(R.id.rv_program)
     TvRecyclerView recyclerView;
 
@@ -208,12 +208,6 @@ public class MainActivity extends AppCompatActivity{
         if(ev.getAction() == MotionEvent.ACTION_DOWN) {//当手指按下的时候
             x1 = ev.getX();
             y1 = ev.getY();
-        }
-        if (ev.getAction() == MotionEvent.ACTION_MOVE){
-            //屏蔽触摸事件
-            if (!isShowProgramList){
-                return true;
-            }
         }
         if(ev.getAction() == MotionEvent.ACTION_UP) {//当手指离开的时候
             x2 = ev.getX();

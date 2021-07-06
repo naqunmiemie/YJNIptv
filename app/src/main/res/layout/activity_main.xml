@@ -6,13 +6,13 @@
     android:layout_height="match_parent"
     tools:context="com.yjn.yjniptv.activity.MainActivity">
 
-    <com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
+    <com.yjn.yjniptv.widget.EmptyControlVideo
         android:id="@+id/videoPlayer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
-    </com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer>
+    </com.yjn.yjniptv.widget.EmptyControlVideo>
 
     <com.owen.tvrecyclerview.widget.TvRecyclerView
         android:id="@+id/rv_program"
