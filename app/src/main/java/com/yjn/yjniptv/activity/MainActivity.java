@@ -9,6 +9,7 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 
 import com.owen.tvrecyclerview.widget.TvRecyclerView;
 import com.shuyu.gsyvideoplayer.GSYVideoManager;
@@ -87,7 +88,7 @@ public class MainActivity extends AppCompatActivity{
             }
         });
 
-        hideProgramList();
+        hideProgramListSlow();
     }
 
     private void initVideoPlayer() {
@@ -132,17 +133,33 @@ public class MainActivity extends AppCompatActivity{
     private void showProgramList(){
         ViewCompat.animate(recyclerView)
                 .translationXBy(PROGRAM_RECYCLERVIEW_WIDTH)
+                .setDuration(500)
                 .setInterpolator(new AccelerateDecelerateInterpolator());
-
         isShowProgramList = true;
     }
 
     private void hideProgramList(){
         ViewCompat.animate(recyclerView)
                 .translationXBy(0-PROGRAM_RECYCLERVIEW_WIDTH)
+                .setDuration(500)
                 .setInterpolator(new AccelerateDecelerateInterpolator());
-
         isShowProgramList = false;
+    }
+
+    private void hideProgramListSlow(){
+        ViewCompat.animate(recyclerView)
+                .translationXBy(0-PROGRAM_RECYCLERVIEW_WIDTH)
+                .setDuration(1000)
+                .setInterpolator(new DecelerateInterpolator());
+        isShowProgramList = false;
+    }
+
+    private void changeProgramList(){
+        if (isShowProgramList){
+            hideProgramList();
+        }else {
+            showProgramList();
+        }
     }
 
 
@@ -174,7 +191,6 @@ public class MainActivity extends AppCompatActivity{
         }
 
         secondTime = System.currentTimeMillis();
-        L.d(firstTime+","+secondTime);
         if (secondTime - firstTime > 2000) {
             T.show("再按一次返回键退出,点击⬅️或者左滑为回看");
             L.d("再按一次返回键退出,点击⬅️或者左滑为回看");
@@ -189,23 +205,25 @@ public class MainActivity extends AppCompatActivity{
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
-        if (isShowProgramList){
-            if (ev.getX()>=(mWidth/2)){
+        if(ev.getAction() == MotionEvent.ACTION_DOWN) {//当手指按下的时候
+            x1 = ev.getX();
+            y1 = ev.getY();
+        }
+        if (ev.getAction() == MotionEvent.ACTION_MOVE){
+            //屏蔽触摸事件
+            if (!isShowProgramList){
+                return true;
+            }
+        }
+        if(ev.getAction() == MotionEvent.ACTION_UP) {//当手指离开的时候
+            x2 = ev.getX();
+            y2 = ev.getY();
+            if (isShowProgramList){
+                if (x2 >= (mWidth/2)){
                 hideProgramList();
                 return true;
-            }
-        }else {
-            if(ev.getAction() == MotionEvent.ACTION_DOWN) {//当手指按下的时候
-                x1 = ev.getX();
-                y1 = ev.getY();
-            }
-            if (ev.getAction() == MotionEvent.ACTION_MOVE){
-                //屏蔽触摸事件
-                return true;
-            }
-            if(ev.getAction() == MotionEvent.ACTION_UP) {//当手指离开的时候
-                x2 = ev.getX();
-                y2 = ev.getY();
+                }
+            }else {
                 if (y1 - y2 > move && (y1 - y2) > (x1 - x2) && (y1 - y2) > (x2 - x1)) {
                     L.i("向上滑");
                     switchChannel(currentChannel+1);
@@ -220,18 +238,16 @@ public class MainActivity extends AppCompatActivity{
                     return true;
                 } else if (x2 - x1 > move) {
                     L.i("向右滑");
-                    if (!isShowProgramList){
-                        showProgramList();
-                    }
+                    showProgramList();
+                    return true;
+                }
+                if (x2 < (mWidth/2)){
+                    showProgramList();
                     return true;
                 }
             }
-
-            if (ev.getAction() == MotionEvent.ACTION_UP && ev.getX()<(mWidth/2)){
-                showProgramList();
-                return true;
-            }
         }
+
         return super.dispatchTouchEvent(ev);
     }
 
