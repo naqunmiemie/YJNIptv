@@ -20,6 +20,7 @@
         android:layout_height="match_parent"
         android:background="#33000000"
         android:orientation="vertical"
+        android:layout_margin="1dp"
         app:tv_layoutManager="ListLayoutManager"
         app:tv_loadMoreBeforehandCount = "11"
         app:layout_constraintStart_toStartOf="parent"

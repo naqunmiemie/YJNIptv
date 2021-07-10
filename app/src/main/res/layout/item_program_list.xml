@@ -4,6 +4,7 @@
     android:id="@+id/ll_program"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="4dp"
     >
 
     <TextView
@@ -11,7 +12,7 @@
         android:layout_width="70dp"
         android:layout_height="match_parent"
         android:text="0"
-        android:gravity="center"
+        android:gravity="right"
         android:textColor="@color/program_list"
         android:textSize="@dimen/program_list_size"
         />

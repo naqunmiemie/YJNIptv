@@ -2,15 +2,20 @@ package com.yjn.yjniptv.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.ViewPropertyAnimatorListener;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 
+import com.owen.focus.AbsFocusBorder;
+import com.owen.focus.FocusBorder;
 import com.owen.tvrecyclerview.widget.TvRecyclerView;
 import com.shuyu.gsyvideoplayer.GSYVideoManager;
 import com.shuyu.gsyvideoplayer.builder.GSYVideoOptionBuilder;
@@ -25,6 +30,7 @@ import com.yjn.yjniptv.widget.EmptyControlVideo;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static android.view.KeyEvent.ACTION_DOWN;
 import static android.view.KeyEvent.KEYCODE_DPAD_CENTER;
 import static android.view.KeyEvent.KEYCODE_DPAD_DOWN;
 import static android.view.KeyEvent.KEYCODE_DPAD_LEFT;
@@ -40,6 +46,7 @@ public class MainActivity extends AppCompatActivity{
     private GSYVideoOptionBuilder gsyVideoOptionBuilder;
     private boolean cache = false;
     private boolean isShowProgramList = false;
+    private boolean isMoveProgramList = false;
     private int PROGRAM_RECYCLERVIEW_WIDTH;
     private float mWidth;
     private float mHeight;
@@ -53,6 +60,8 @@ public class MainActivity extends AppCompatActivity{
     float y2 = 0;
     int move=100;//移动距离
 
+    FocusBorder mColorFocusBorder;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,6 +74,7 @@ public class MainActivity extends AppCompatActivity{
         initParam();
         initView();
         initVideoPlayer();
+        initBorder();
     }
 
     private void initParam() {
@@ -85,6 +95,7 @@ public class MainActivity extends AppCompatActivity{
             public void onClick(View view, int position) {
                 L.i(String.valueOf(ProgramList.programHashMap.get(position).getUrl()));
                 switchChannel(position);
+                hideProgramList();
             }
         });
 
@@ -104,6 +115,64 @@ public class MainActivity extends AppCompatActivity{
         switchChannel(currentChannel);
         gsyVideoOptionBuilder.build(videoPlayer);
     }
+
+    private void initBorder() {
+        /** 颜色焦点框 */
+        mColorFocusBorder = new FocusBorder.Builder().asColor()
+                //阴影宽度(方法shadowWidth(18f)也可以设置阴影宽度)
+                .shadowWidth(TypedValue.COMPLEX_UNIT_DIP, 10f)
+                //阴影颜色
+                .shadowColor(Color.parseColor("#00FFFFFF"))
+                //边框宽度(方法borderWidth(2f)也可以设置边框宽度)
+                .borderWidth(4f)
+                //边框颜色
+                .borderColor(Color.parseColor("#00FF00"))
+                //padding值
+                .padding(1f)
+                //动画时长
+                .animDuration(300)
+                //不要闪光效果动画
+//                .noShimmer()
+                //闪光颜色
+                .shimmerColor(Color.parseColor("#66FFFFFF"))
+                //闪光动画时长
+                .shimmerDuration(1000)
+                //不要呼吸灯效果
+//                .noBreathing()
+                //呼吸灯效果时长
+                .breathingDuration(3000)
+                //边框动画模式
+                .animMode(AbsFocusBorder.Mode.TOGETHER)
+                .build(this);
+
+        //焦点监听 方式一:绑定整个页面的焦点监听事件
+        mColorFocusBorder.boundGlobalFocusListener(new FocusBorder.OnFocusCallback() {
+            @Override
+            public FocusBorder.Options onFocus(View oldFocus, View newFocus) {
+                if(null != newFocus) {
+                    switch (newFocus.getId()) {
+                        case R.id.ll_program:
+                            return createColorBorderOptions(6);
+                        default:
+                            break;
+                    }
+                }
+                //返回null表示不使用焦点框框架
+                return null;
+            }
+        });
+    }
+
+    private FocusBorder.Options createColorBorderOptions(int radius) {
+        float scale = 1f;
+        return FocusBorder.OptionsFactory.get(scale, scale, dp2px(radius) * scale);
+    }
+
+    private float dp2px(int dp) {
+        return TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, dp, getResources().getDisplayMetrics());
+    }
+
 
     private void switchChannel(int num) {
         if (num >= ProgramList.programHashMap.size()){
@@ -131,37 +200,97 @@ public class MainActivity extends AppCompatActivity{
     }
 
     private void showProgramList(){
+        if (isMoveProgramList){
+            return;
+        }
         ViewCompat.animate(recyclerView)
                 .translationXBy(PROGRAM_RECYCLERVIEW_WIDTH)
                 .setDuration(500)
-                .setInterpolator(new AccelerateDecelerateInterpolator());
-        isShowProgramList = true;
+                .setInterpolator(new AccelerateDecelerateInterpolator())
+                .setListener(new ViewPropertyAnimatorListener() {
+                    @Override
+                    public void onAnimationStart(View view) {
+                        isMoveProgramList = true;
+                    }
+
+                    @Override
+                    public void onAnimationEnd(View view) {
+                        isShowProgramList = true;
+                        isMoveProgramList = false;
+                        recyclerView.setClickable(true);
+                        recyclerView.setFocusable(true);
+                        recyclerView.requestFocus();
+                        mColorFocusBorder.setVisible(true);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(View view) {
+                        isMoveProgramList = false;
+                    }
+                });
     }
 
     private void hideProgramList(){
+        if (isMoveProgramList){
+            return;
+        }
         ViewCompat.animate(recyclerView)
                 .translationXBy(0-PROGRAM_RECYCLERVIEW_WIDTH)
                 .setDuration(500)
-                .setInterpolator(new AccelerateDecelerateInterpolator());
-        isShowProgramList = false;
+                .setInterpolator(new AccelerateDecelerateInterpolator())
+                .setListener(new ViewPropertyAnimatorListener() {
+                    @Override
+                    public void onAnimationStart(View view) {
+                        isMoveProgramList = true;
+                        mColorFocusBorder.setVisible(false);
+                    }
+
+                    @Override
+                    public void onAnimationEnd(View view) {
+                        isShowProgramList = false;
+                        isMoveProgramList = false;
+                        recyclerView.setClickable(false);
+                        recyclerView.setFocusable(false);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(View view) {
+                        isMoveProgramList = false;
+                    }
+                });
+
+
     }
 
     private void hideProgramListSlow(){
+        if (isMoveProgramList){
+            return;
+        }
         ViewCompat.animate(recyclerView)
                 .translationXBy(0-PROGRAM_RECYCLERVIEW_WIDTH)
                 .setDuration(1000)
-                .setInterpolator(new DecelerateInterpolator());
-        isShowProgramList = false;
-    }
+                .setInterpolator(new DecelerateInterpolator())
+                .setListener(new ViewPropertyAnimatorListener() {
+                    @Override
+                    public void onAnimationStart(View view) {
+                        isMoveProgramList = true;
+                        mColorFocusBorder.setVisible(false);
+                    }
 
-    private void changeProgramList(){
-        if (isShowProgramList){
-            hideProgramList();
-        }else {
-            showProgramList();
-        }
-    }
+                    @Override
+                    public void onAnimationEnd(View view) {
+                        isShowProgramList = false;
+                        isMoveProgramList = false;
+                        recyclerView.setClickable(false);
+                        recyclerView.setFocusable(false);
+                    }
 
+                    @Override
+                    public void onAnimationCancel(View view) {
+                        isMoveProgramList = false;
+                    }
+                });
+    }
 
 
     @Override
@@ -213,7 +342,7 @@ public class MainActivity extends AppCompatActivity{
             x2 = ev.getX();
             y2 = ev.getY();
             if (isShowProgramList){
-                if (x2 >= (mWidth/2)){
+                if (x2 >= (PROGRAM_RECYCLERVIEW_WIDTH)){
                 hideProgramList();
                 return true;
                 }
@@ -247,24 +376,32 @@ public class MainActivity extends AppCompatActivity{
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
-        switch (event.getKeyCode()){
-            case KEYCODE_DPAD_CENTER:
-                if (isShowProgramList){
-                    hideProgramList();
-                }else {
-                    showProgramList();
+        if (event.getAction() == ACTION_DOWN){
+            if (isShowProgramList){
+                switch (event.getKeyCode()){
+                    case KEYCODE_DPAD_LEFT:
+                        hideProgramList();
+                        return true;
                 }
-                return true;
-            case KEYCODE_DPAD_LEFT:
-                switchChannel(lastChannel);
-                return true;
-            case KEYCODE_DPAD_UP:
-                switchChannel(currentChannel+1);
-                return true;
-            case KEYCODE_DPAD_DOWN:
-                switchChannel(currentChannel-1);
-                return true;
+            }else {
+                switch (event.getKeyCode()){
+                    case KEYCODE_DPAD_CENTER:
+                        showProgramList();
+                        return true;
+                    case KEYCODE_DPAD_LEFT:
+                        switchChannel(lastChannel);
+                        return true;
+                    case KEYCODE_DPAD_UP:
+                        switchChannel(currentChannel+1);
+                        return true;
+                    case KEYCODE_DPAD_DOWN:
+                        switchChannel(currentChannel-1);
+                        return true;
+                }
+            }
+
         }
         return super.dispatchKeyEvent(event);
     }
+
 }
