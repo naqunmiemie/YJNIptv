@@ -1,6 +1,7 @@
 package com.yjn.yjniptv;
 
 import android.app.Application;
+import android.content.Context;
 
 import com.yjn.common.Common;
 
@@ -12,6 +13,7 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         mInstance = this;
+        Context context = this;
         init();
     }
 
